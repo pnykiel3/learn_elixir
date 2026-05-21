@@ -1,20 +1,26 @@
 defmodule Pokedex do
   def search(name) do
-    url = "https://pokeapi.co/api/v2/pokemon/#{name}"
+    name |> build_url() |> Req.get() |> handle_response()
+  end
 
-    case Req.get(url) do
+  defp build_url(name) do
+    "https://pokeapi.co/api/v2/pokemon/#{name}"
+  end
 
-      {:ok, %{status: 200, body: body} } ->
-        pokemon_name = body["name"]
-        pokemon_weight = body["weight"]
-        pokemon_height = body["height"]
-        IO.puts("Pokemon #{pokemon_name} weights #{pokemon_weight} and is #{pokemon_height} height")
+  defp handle_response({:ok, %{status: 200, body: body}}) do
+    pokemon_name = body["name"]
+    pokemon_weight = body["weight"]
+    pokemon_height = body["height"]
+    IO.puts("Pokemon #{pokemon_name} weights #{pokemon_weight} and is #{pokemon_height} height")
+    types = body["types"] |> Enum.map(fn t -> t["type"]["name"] end) |> Enum.join(", ")
+    IO.puts("Pokemon types are #{types}")
+  end
 
-      {:ok, %{status: 404}} ->
-        IO.puts("Pokemon #{name} not found")
+  defp handle_response({:ok, %{status: 404}}) do
+    IO.puts("Pokemon not found")
+  end
 
-      {:error, reason} ->
-        IO.puts("An error occured: #{reason}")
-    end
+  defp handle_response({:error, _reason}) do
+    IO.puts("An error occured")
   end
 end
