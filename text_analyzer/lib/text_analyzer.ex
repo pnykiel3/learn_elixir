@@ -28,3 +28,13 @@ defmodule TextAnalyzer do
     {title, author}
   end
 end
+
+defmodule BatchAnalyzer do
+  def run_multiple(book_ids) do
+    IO.puts("Analyzing #{length(book_ids)} books concurrently")
+
+    book_ids |>
+    Task.async_stream(fn book_id -> TextAnalyzer.analyze(book_id) end, timeout: 30_000) |>
+    Enum.to_list()
+  end
+end
