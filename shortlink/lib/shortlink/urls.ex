@@ -8,6 +8,10 @@ defmodule Shortlink.Urls do
 
   alias Shortlink.Urls.Link
 
+  def get_link_by_hash(hash) do
+    Repo.get_by(Link, hash: hash)
+  end
+
   @doc """
   Returns the list of links.
 
@@ -49,9 +53,13 @@ defmodule Shortlink.Urls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_link(attrs) do
+  def create_link(attrs \\ %{}) do
+    random_hash = :crypto.strong_rand_bytes(4) |> Base.url_encode64(padding: false)
+
+    attrs_with_hash = Map.put(attrs, "hash", random_hash)
+
     %Link{}
-    |> Link.changeset(attrs)
+    |> Link.changeset(attrs_with_hash)
     |> Repo.insert()
   end
 
