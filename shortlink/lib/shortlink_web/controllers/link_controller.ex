@@ -40,4 +40,16 @@ defmodule ShortlinkWeb.LinkController do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def stats(conn, %{"hash" => hash}) do
+    case Shortlink.Urls.get_link_by_hash(hash) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Link has not been found"})
+
+      link ->
+        render(conn, :show, link: link)
+    end
+  end
 end

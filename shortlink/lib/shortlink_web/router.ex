@@ -7,6 +7,7 @@ defmodule ShortlinkWeb.Router do
 
   scope "/api", ShortlinkWeb do
     pipe_through :api
+    get "/links/:hash/stats", LinkController, :stats
     resources "/links", LinkController, except: [:new, :edit]
   end
 
